@@ -858,19 +858,15 @@
 
        // ============== INITIALIZE EVERYTHING ==============
         function initializeApp() {
-            initAuth();                    // ←←← THIS IS THE ONLY NEW LINE
+            initAuth();                    // already there
+            loadProducts();                // ←←← ADD THIS LINE
 
             initTailwind()
             runHeroAnimations()
             renderCategories()
-            renderProducts(products)
+            // renderProducts(products)    ← you can delete this old line if you want
             renderMakers()
             updateCartCount()
-            
-            // Fake logged-in state for demo (remove in production)
-            // currentUser.loggedIn = true
-            // currentUser.name = "Vansh"
-            // updateAccountUI()
             
             console.log('%c🚀 ArtisanHaven V1 is alive and beautiful!', 'background:#c2410f;color:white;padding:4px 8px;border-radius:4px')
         }
