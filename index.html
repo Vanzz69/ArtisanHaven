@@ -422,6 +422,11 @@
             </div>
         </div>
     </div>
+</div>
+
+    <!-- 🔥 NEW: Load Firebase + Auth (add these 2 lines) -->
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth.js"></script>
 
     <script>
         // ============== TAILWIND CONFIG ==============
@@ -850,8 +855,10 @@
             document.getElementById(section).scrollIntoView({ behavior: 'smooth' })
         }
 
-        // ============== INITIALIZE EVERYTHING ==============
+       // ============== INITIALIZE EVERYTHING ==============
         function initializeApp() {
+            initAuth();                    // ←←← THIS IS THE ONLY NEW LINE
+
             initTailwind()
             runHeroAnimations()
             renderCategories()
