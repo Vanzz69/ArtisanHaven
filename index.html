@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtisanHaven • Handmade with Soul</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+        
+        :root {
+            --earthy: #c2410f;
+            --forest: #166534;
+            --cream: #f8f1e3;
+            --sage: #4b6f44;
+        }
+        
+        * {
+            transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+            transition-duration: 150ms;
+        }
+        
+        .hero-bg {
+            background: linear-gradient(92deg, #f8f1e3 0%, #e8d9c7 100%);
+        }
+        
+        .product-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .product-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 25px 25px 0 -10px #c2410f20;
+        }
+        
+        .fly-to-cart {
+            animation: flyToCart 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55) forwards;
+        }
+        
+        @keyframes flyToCart {
+            0% { transform: scale(1); }
+            100% { transform: scale(0.3) translate(300px, -200px); opacity: 0; }
+        }
+        
+        .modal {
+            animation: modalPop 0.3s ease forwards;
+        }
+    </style>
+</head>
+<body class="bg-[#f8f1e3] font-['Inter'] text-[#3f2a1e]">
+    <!-- NAVBAR -->
+    <nav class="bg-[#f8f1e3]/95 backdrop-blur-lg border-b border-[#d97706]/10 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-[#c2410f] rounded-2xl flex items-center justify-center text-white text-2xl shadow-inner">🪔</div>
+                <h1 class="text-3xl font-bold tracking-tighter text-[#c2410f]" style="font-family: 'Playfair Display', serif;">ArtisanHaven</h1>
+            </div>
+
+            <!-- Desktop Menu -->
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <a onclick="navigateToSection('shop')" class="hover:text-[#c2410f] flex items-center gap-1">
+                    <i class="fa-solid fa-shop"></i> Shop
+                </a>
+                <a onclick="navigateToSection('makers')" class="hover:text-[#c2410f] flex items-center gap-1">
+                    <i class="fa-solid fa-hands-holding-heart"></i> Makers
+                </a>
+                <a onclick="showSellModal()" class="hover:text-[#c2410f] flex items-center gap-1">
+                    <i class="fa-solid fa-leaf"></i> Sell Your Work
+                </a>
+            </div>
+
+            <div class="flex items-center gap-6">
+                <!-- Search -->
+                <div onclick="toggleSearch()" class="flex items-center bg-white/70 hover:bg-white rounded-3xl px-5 py-2 text-sm border border-[#d97706]/20 cursor-pointer">
+                    <i class="fa-solid fa-magnifying-glass mr-2 text-[#c2410f]"></i>
+                    <input id="global-search" type="text" placeholder="Search handmade treasures..." 
+                           class="bg-transparent outline-none w-48 placeholder:text-[#a37a5e] text-sm">
+                </div>
+
+                <!-- Cart -->
+                <div onclick="showCart()" class="relative cursor-pointer group">
+                    <i class="fa-solid fa-shopping-bag text-2xl text-[#3f2a1e] group-hover:text-[#c2410f]"></i>
+                    <span id="cart-count" class="absolute -top-1 -right-1 bg-[#c2410f] text-white text-[10px] font-bold w-5 h-5 flex items-center justify-center rounded-full">0</span>
+                </div>
+
+                <!-- Account -->
+                <div onclick="showAuthModal()" id="account-btn" class="flex items-center gap-2 cursor-pointer">
+                    <div id="user-avatar" class="w-8 h-8 bg-[#166534] text-white rounded-2xl flex items-center justify-center text-sm font-semibold">👋</div>
+                    <div>
+                        <p id="user-name" class="text-sm font-medium">Guest</p>
+                        <p id="user-role" class="text-xs text-[#a37a5e] -mt-1">Browse as Buyer</p>
+                    </div>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button onclick="toggleMobileMenu()" class="md:hidden text-2xl">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t px-6 py-6">
+            <div class="flex flex-col gap-4 text-lg">
+                <a onclick="navigateToSection('shop');toggleMobileMenu()" class="flex items-center gap-3">🛍️ Shop Treasures</a>
+                <a onclick="navigateToSection('makers');toggleMobileMenu()" class="flex items-center gap-3">❤️ Meet the Makers</a>
+                <a onclick="showSellModal();toggleMobileMenu()" class="flex items-center gap-3">🌿 Sell Your Creations</a>
+                <div class="h-px bg-[#d97706]/20 my-2"></div>
+                <button onclick="showAuthModal();toggleMobileMenu()" class="w-full text-left flex justify-between items-center">
+                    <span class="flex items-center gap-3">👤 My Profile</span>
+                    <span id="mobile-role-badge" class="text-xs px-3 py-1 bg-[#c2410f] text-white rounded-3xl">Buyer</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero" class="hero-bg min-h-screen flex items-center relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <div class="inline-flex items-center gap-2 bg-white/80 text-[#166534] text-sm font-medium px-6 py-3 rounded-3xl shadow-inner">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#166534] opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-[#166534]"></span>
+                    </span>
+                    184 new artisan pieces dropped today
+                </div>
+                
+                <h1 id="hero-title" class="text-6xl md:text-7xl font-bold leading-none tracking-tighter" style="font-family: 'Playfair Display', serif; color: #3f2a1e;">
+                    Handmade treasures.<br>Real stories.<br><span class="text-[#c2410f]">Real people.</span>
+                </h1>
+                
+                <p id="hero-subtitle" class="text-xl text-[#5c4633] max-w-md">
+                    Connect directly with artisans who craft every piece with love. 
+                    From clay to canvas — your next favorite thing is waiting.
+                </p>
+                
+                <div class="flex flex-wrap gap-4">
+                    <button onclick="navigateToSection('shop')" 
+                            class="bg-[#c2410f] hover:bg-[#9c2f0c] text-white px-10 py-6 rounded-3xl text-xl font-semibold flex items-center gap-3 shadow-xl shadow-[#c2410f]/30">
+                        Browse the Collection
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                    
+                    <button onclick="showSellModal()" 
+                            class="border-2 border-[#166534] hover:bg-[#166534] hover:text-white text-[#166534] px-8 py-6 rounded-3xl text-xl font-medium flex items-center gap-3">
+                        <i class="fa-solid fa-leaf"></i>
+                        Start Selling Today
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-8 text-sm">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-[#166534]"></i>
+                        <p>Free shipping over ₹1500</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-check text-[#166534]"></i>
+                        <p>Handpicked by 12,847 happy souls</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Hero Visual -->
+            <div class="relative hidden md:block">
+                <div id="hero-image-container" class="relative">
+                    <img src="https://picsum.photos/id/1015/800/900" 
+                         alt="Handmade pottery" 
+                         class="rounded-3xl shadow-2xl rotate-6 scale-95">
+                    <div class="absolute -bottom-6 -left-6 bg-white rounded-3xl px-6 py-4 shadow-xl flex items-center gap-4">
+                        <div class="text-4xl">🪔</div>
+                        <div>
+                            <p class="font-semibold">“Every piece tells my grandmother’s story”</p>
+                            <p class="text-[#a37a5e] text-sm">- Priya, Kerala Potter</p>
+                        </div>
+                    </div>
+                    <div class="absolute top-12 -right-6 bg-[#166534] text-white px-5 py-3 rounded-3xl text-sm font-medium flex items-center gap-2 shadow-xl">
+                        <i class="fa-solid fa-star"></i>
+                        4.98 • 387 reviews
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll indicator -->
+        <div onclick="navigateToSection('shop')" class="absolute bottom-12 left-1/2 flex flex-col items-center cursor-pointer">
+            <p class="text-xs tracking-[2px] text-[#a37a5e] mb-2">SCROLL FOR MAGIC</p>
+            <i class="fa-solid fa-chevron-down animate-bounce text-2xl text-[#c2410f]"></i>
+        </div>
+    </section>
+
+    <!-- CATEGORIES -->
+    <section class="max-w-7xl mx-auto px-6 py-16">
+        <h2 class="text-4xl font-bold text-center mb-10" style="font-family: 'Playfair Display', serif;">Discover by Craft</h2>
+        <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <!-- Populated by JS -->
+        </div>
+    </section>
+
+    <!-- SHOP SECTION -->
+    <section id="shop" class="max-w-7xl mx-auto px-6 py-16 bg-white rounded-3xl mx-4 mb-16">
+        <div class="flex justify-between items-baseline mb-8">
+            <h2 class="text-4xl font-bold" style="font-family: 'Playfair Display', serif;">Our Latest Treasures</h2>
+            <div class="flex items-center gap-3 text-sm">
+                <span id="results-count" class="text-[#a37a5e]">142 items</span>
+                <select id="sort-select" onchange="filterProducts()" class="bg-transparent border border-[#d97706]/30 rounded-3xl px-5 py-2 text-sm focus:outline-none">
+                    <option value="newest">Newest First</option>
+                    <option value="price-low">Price: Low to High</option>
+                    <option value="price-high">Price: High to Low</option>
+                    <option value="rating">Highest Rated</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="flex gap-8">
+            <!-- Filters -->
+            <div class="w-64 hidden lg:block">
+                <div class="sticky top-6">
+                    <h3 class="font-semibold mb-4 flex items-center gap-2"><i class="fa-solid fa-filter"></i> Filters</h3>
+                    
+                    <div class="mb-8">
+                        <p class="text-sm mb-3 text-[#a37a5e]">Category</p>
+                        <div id="filter-categories" class="flex flex-wrap gap-2">
+                            <!-- JS populated -->
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm mb-3 text-[#a37a5e]">Price Range</p>
+                        <div class="flex gap-4">
+                            <input id="price-min" type="number" placeholder="₹500" class="w-full bg-[#f8f1e3] rounded-2xl px-4 py-3 text-sm">
+                            <input id="price-max" type="number" placeholder="₹8000" class="w-full bg-[#f8f1e3] rounded-2xl px-4 py-3 text-sm">
+                        </div>
+                        <button onclick="filterProducts()" class="mt-4 w-full bg-[#166534] text-white py-4 rounded-3xl text-sm font-medium">Apply Filters</button>
+                    </div>
+                    
+                    <div class="mt-8 pt-8 border-t">
+                        <p class="text-xs uppercase tracking-widest mb-4">Made with love in</p>
+                        <div class="flex flex-wrap gap-2 text-sm">
+                            <span onclick="toggleLocationFilter(this)" class="cursor-pointer px-4 py-2 bg-[#f8f1e3] rounded-3xl">Kerala</span>
+                            <span onclick="toggleLocationFilter(this)" class="cursor-pointer px-4 py-2 bg-[#f8f1e3] rounded-3xl">Rajasthan</span>
+                            <span onclick="toggleLocationFilter(this)" class="cursor-pointer px-4 py-2 bg-[#f8f1e3] rounded-3xl">Himachal</span>
+                            <span onclick="toggleLocationFilter(this)" class="cursor-pointer px-4 py-2 bg-[#f8f1e3] rounded-3xl">Assam</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Products Grid -->
+            <div id="products-grid" class="flex-1 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- MAKERS / SELLERS TEASER -->
+    <section id="makers" class="max-w-7xl mx-auto px-6 py-20">
+        <div class="text-center mb-12">
+            <span class="px-6 py-2 bg-[#166534]/10 text-[#166534] rounded-3xl text-sm font-medium">MEET THE MAKERS</span>
+            <h2 class="text-5xl font-bold mt-4" style="font-family: 'Playfair Display', serif;">Behind every piece is a story</h2>
+        </div>
+        
+        <div id="makers-grid" class="grid md:grid-cols-4 gap-8">
+            <!-- JS populated -->
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="bg-[#3f2a1e] text-[#f8f1e3] py-16">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-10">
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-9 h-9 bg-[#c2410f] rounded-2xl flex items-center justify-center text-white text-3xl">🪔</div>
+                    <h1 class="text-3xl font-bold" style="font-family: 'Playfair Display', serif;">ArtisanHaven</h1>
+                </div>
+                <p class="text-[#d4c3b0]">A warm home for handmade goods and the incredible humans who make them.</p>
+            </div>
+            <div>
+                <p class="uppercase text-xs mb-4 text-[#d4c3b0]">Shop</p>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="hover:text-white">New Arrivals</a></li>
+                    <li><a href="#" class="hover:text-white">Best Sellers</a></li>
+                    <li><a href="#" class="hover:text-white">Gifts for Her</a></li>
+                    <li><a href="#" class="hover:text-white">Gifts for Him</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="uppercase text-xs mb-4 text-[#d4c3b0]">Community</p>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="hover:text-white">Our Makers</a></li>
+                    <li><a href="#" class="hover:text-white">Stories Journal</a></li>
+                    <li><a href="#" class="hover:text-white">Join the Circle</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="text-sm leading-relaxed">Made with ❤️ in India for the world.<br>© 2026 ArtisanHaven — All treasures protected.</p>
+                <div class="flex gap-6 mt-8 text-2xl">
+                    <i class="fa-brands fa-instagram cursor-pointer hover:text-[#c2410f]"></i>
+                    <i class="fa-brands fa-threads cursor-pointer hover:text-[#c2410f]"></i>
+                    <i class="fa-brands fa-whatsapp cursor-pointer hover:text-[#c2410f]"></i>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- PRODUCT QUICK VIEW MODAL -->
+    <div id="quick-view-modal" onclick="if(event.target === this) hideQuickView()" class="hidden fixed inset-0 bg-black/70 z-[100] flex items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="modal bg-white rounded-3xl max-w-4xl w-full mx-4 overflow-hidden">
+            <div class="flex">
+                <div id="modal-image" class="flex-1 bg-[#f8f1e3] h-[520px] flex items-center justify-center text-9xl"></div>
+                <div class="flex-1 p-10">
+                    <div class="flex justify-between">
+                        <h3 id="modal-title" class="text-4xl font-semibold"></h3>
+                        <button onclick="hideQuickView()" class="text-4xl leading-none text-[#a37a5e]">×</button>
+                    </div>
+                    <p id="modal-seller" class="text-[#166534] mt-2 flex items-center gap-2"></p>
+                    <div id="modal-price" class="text-5xl font-bold mt-6"></div>
+                    <div id="modal-rating" class="flex text-amber-500 mt-3"></div>
+                    
+                    <p id="modal-description" class="mt-8 text-[#5c4633] leading-relaxed"></p>
+                    
+                    <div class="mt-10 flex items-center gap-6">
+                        <button onclick="addCurrentToCart()" 
+                                class="flex-1 bg-[#c2410f] text-white py-6 rounded-3xl text-xl font-semibold flex items-center justify-center gap-3">
+                            <i class="fa-solid fa-bag-shopping"></i> Add to Cart — <span id="modal-price-btn"></span>
+                        </button>
+                    </div>
+                    
+                    <div class="text-xs text-[#a37a5e] mt-8 flex items-center gap-2">
+                        <i class="fa-solid fa-truck"></i> Ships in 2–4 days • Carbon-neutral delivery
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART SIDEBAR -->
+    <div id="cart-sidebar" onclick="if(event.target === this) hideCart()" class="hidden fixed inset-0 bg-black/60 z-[110] flex justify-end">
+        <div onclick="event.stopImmediatePropagation()" class="modal bg-white w-full max-w-md h-full shadow-2xl flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h2 class="text-3xl font-semibold">Your Basket</h2>
+                <button onclick="hideCart()" class="text-4xl">×</button>
+            </div>
+            
+            <div id="cart-items" class="flex-1 p-6 overflow-auto space-y-8"></div>
+            
+            <div class="p-6 border-t mt-auto">
+                <div class="flex justify-between text-xl mb-6">
+                    <span class="font-medium">Total</span>
+                    <span id="cart-total" class="font-bold">₹0</span>
+                </div>
+                <button onclick="proceedToCheckout()" 
+                        class="w-full bg-[#166534] text-white py-7 rounded-3xl text-xl font-semibold">Checkout Securely</button>
+                <p class="text-center text-xs text-[#a37a5e] mt-4">or 4 payments of ₹X with <span class="font-bold">razorpay</span></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUTH / ROLE MODAL -->
+    <div id="auth-modal" onclick="if(event.target === this) hideAuthModal()" class="hidden fixed inset-0 bg-black/70 z-[120] flex items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="modal bg-white rounded-3xl max-w-md w-full mx-4 p-8">
+            <h2 class="text-3xl font-semibold mb-6 text-center">Welcome to ArtisanHaven</h2>
+            
+            <div class="flex border-b mb-8">
+                <button onclick="switchAuthTab(0)" id="tab-login" class="flex-1 py-4 font-medium border-b-2 border-[#c2410f] text-[#c2410f]">Log in</button>
+                <button onclick="switchAuthTab(1)" id="tab-signup" class="flex-1 py-4 font-medium">Join as new member</button>
+            </div>
+            
+            <div id="auth-content">
+                <!-- JS injected -->
+            </div>
+            
+            <div class="text-center mt-8 text-xs text-[#a37a5e]">
+                By continuing you agree to our <span class="underline">Handmade Promise</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SELLER ONBOARDING MODAL -->
+    <div id="sell-modal" onclick="if(event.target === this) hideSellModal()" class="hidden fixed inset-0 bg-black/70 z-[130] flex items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="modal bg-white rounded-3xl max-w-lg w-full mx-4 p-10">
+            <h2 class="text-4xl font-bold text-center mb-3">Ready to share your craft with the world?</h2>
+            <p class="text-center text-[#a37a5e] mb-10">Join 1,284 other artisans earning on ArtisanHaven</p>
+            
+            <div class="space-y-6">
+                <input id="shop-name" type="text" placeholder="Your shop name (e.g. Clay &amp; Soul)" class="w-full border border-[#d97706]/30 rounded-3xl px-6 py-5 text-lg">
+                <textarea id="seller-bio" placeholder="Tell buyers your story..." rows="4" class="w-full border border-[#d97706]/30 rounded-3xl px-6 py-5"></textarea>
+                
+                <button onclick="fakeBecomeSeller()" 
+                        class="w-full py-6 bg-gradient-to-r from-[#c2410f] to-[#166534] text-white rounded-3xl text-xl font-semibold">Create My Shop &amp; Start Selling</button>
+            </div>
+            
+            <p class="text-xs text-center text-[#a37a5e] mt-8">Takes 60 seconds • Zero fees to list</p>
+        </div>
+    </div>
+
+    <!-- CHECKOUT MODAL (simple V1) -->
+    <div id="checkout-modal" onclick="if(event.target === this) hideCheckout()" class="hidden fixed inset-0 bg-black/70 z-[140] flex items-center justify-center">
+        <div onclick="event.stopImmediatePropagation()" class="modal bg-white rounded-3xl max-w-2xl w-full mx-4 p-8">
+            <h2 class="text-3xl font-bold mb-8">Almost there…</h2>
+            <div class="grid grid-cols-2 gap-8">
+                <div>
+                    <p class="font-medium mb-4">Shipping details</p>
+                    <input type="text" placeholder="Full name" class="w-full rounded-3xl px-6 py-4 mb-4 border border-[#d97706]/20">
+                    <input type="text" placeholder="Address" class="w-full rounded-3xl px-6 py-4 mb-4 border border-[#d97706]/20">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="text" placeholder="City" class="rounded-3xl px-6 py-4 border border-[#d97706]/20">
+                        <input type="text" placeholder="Pincode" class="rounded-3xl px-6 py-4 border border-[#d97706]/20">
+                    </div>
+                </div>
+                <div>
+                    <p class="font-medium mb-4">Payment</p>
+                    <div class="border border-[#166534] rounded-3xl p-6 text-center text-[#166534] font-medium">
+                        Razorpay • UPI / Card / Wallet
+                    </div>
+                    <button onclick="completeFakeCheckout()" class="mt-10 w-full bg-[#166534] text-white py-7 text-xl font-semibold rounded-3xl">Pay ₹<span id="final-total"></span> securely</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============== TAILWIND CONFIG ==============
+        function initTailwind() {
+            tailwind.config = {
+                content: [],
+                theme: {
+                    extend: {
+                        colors: {
+                            earthy: '#c2410f',
+                            forest: '#166534',
+                            cream: '#f8f1e3',
+                            sage: '#4b6f44'
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============== DEMO DATA ==============
+        let products = [
+            { id: 1, title: "Terracotta Bloom Vase", price: 1850, category: "Pottery", seller: "Priya Ceramics", rating: 4.9, location: "Kerala", image: "https://picsum.photos/id/1015/600/600", desc: "Hand-thrown with love using Kerala river clay. Each piece is unique." },
+            { id: 2, title: "Handwoven Ajrakh Silk Stole", price: 3200, category: "Textiles", seller: "Rajasthan Loom", rating: 5, location: "Rajasthan", image: "https://picsum.photos/id/160/600/600", desc: "Natural dyes & traditional 16-step block printing by master artisans." },
+            { id: 3, title: "Wooden Diya Candle Holder Set", price: 950, category: "Woodwork", seller: "Himalayan Roots", rating: 4.8, location: "Himachal", image: "https://picsum.photos/id/29/600/600", desc: "Carved from fallen pine. Perfect for your Diwali altar." },
+            { id: 4, title: "Sterling Silver Moon Earrings", price: 4200, category: "Jewelry", seller: "Silver Thread Co.", rating: 4.9, location: "Odisha", image: "https://picsum.photos/id/201/600/600", desc: "Hand-forged with real moonstone. Lightweight everyday magic." },
+            { id: 5, title: "Macramé Wall Hanging – Boho Dream", price: 1650, category: "Textiles", seller: "Knots & Threads", rating: 5, location: "Goa", image: "https://picsum.photos/id/1005/600/600", desc: "100% recycled cotton rope. Made to order in your preferred color." },
+            { id: 6, title: "Ceramic Matcha Bowl – Wabi Sabi", price: 1250, category: "Pottery", seller: "Priya Ceramics", rating: 4.7, location: "Kerala", image: "https://picsum.photos/id/133/600/600", desc: "Asymmetric beauty. Holds your mindfulness ritual perfectly." },
+            { id: 7, title: "Brass Incense Burner – Lotus", price: 2800, category: "Metalwork", seller: "Moradabad Masters", rating: 4.9, location: "Uttar Pradesh", image: "https://picsum.photos/id/251/600/600", desc: "Lost-wax casting technique passed through 7 generations." },
+            { id: 8, title: "Hand-embroidered Patchwork Cushion", price: 2100, category: "Textiles", seller: "Kutch Sisters", rating: 5, location: "Gujarat", image: "https://picsum.photos/id/1009/600/600", desc: "Vintage kantha + mirror work. One of a kind." }
+        ]
+
+        let currentUser = {
+            loggedIn: false,
+            role: 'buyer', // 'buyer' or 'seller'
+            name: 'Guest',
+            avatar: '👋'
+        }
+
+        let cart = []
+
+        // ============== GSAP ANIMATIONS ==============
+        function runHeroAnimations() {
+            gsap.from("#hero-title", { y: 60, opacity: 0, duration: 1.2, ease: "power4.out" })
+            gsap.from("#hero-subtitle", { y: 40, opacity: 0, duration: 1.2, delay: 0.3, ease: "power4.out" })
+            gsap.from("#hero-image-container", { scale: 0.85, rotation: -12, opacity: 0, duration: 1.8, ease: "elastic.out(1,0.5)" })
+        }
+
+        // ============== RENDER FUNCTIONS ==============
+        function renderCategories() {
+            const cats = ["Pottery", "Jewelry", "Textiles", "Woodwork", "Metalwork", "Candles & Incense"]
+            const container = document.getElementById('categories-grid')
+            container.innerHTML = cats.map(cat => `
+                <div onclick="quickCategoryFilter('${cat}')" 
+                     class="group bg-white hover:bg-[#c2410f] hover:text-white rounded-3xl px-6 py-8 text-center cursor-pointer shadow-sm">
+                    <div class="text-5xl mb-4 group-hover:scale-110">${getCategoryEmoji(cat)}</div>
+                    <p class="font-semibold">${cat}</p>
+                </div>
+            `).join('')
+        }
+
+        function getCategoryEmoji(cat) {
+            if (cat === "Pottery") return "🪔"
+            if (cat === "Jewelry") return "💍"
+            if (cat === "Textiles") return "🧣"
+            if (cat === "Woodwork") return "🪵"
+            if (cat === "Metalwork") return "🪔"
+            return "🕯️"
+        }
+
+        function renderProducts(filteredProducts) {
+            const container = document.getElementById('products-grid')
+            container.innerHTML = filteredProducts.map(product => `
+                <div onclick="showQuickView(${product.id})" class="product-card bg-white rounded-3xl overflow-hidden cursor-pointer">
+                    <div class="relative">
+                        <img src="${product.image}" alt="${product.title}" class="w-full h-72 object-cover">
+                        <div class="absolute top-4 right-4 bg-white text-[#c2410f] text-xs font-bold px-3 py-1 rounded-3xl shadow">${product.location}</div>
+                    </div>
+                    <div class="p-6">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold text-xl">${product.title}</h4>
+                                <p class="text-[#a37a5e] text-sm">${product.seller}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-bold text-2xl text-[#166534]">₹${product.price}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-1 mt-4 text-amber-500">
+                            ${Array(5).fill('★').map((star, i) => `<span class="${i < Math.floor(product.rating) ? '' : 'text-amber-200'}">${star}</span>`).join('')}
+                            <span class="text-xs ml-2 text-[#a37a5e]">${product.rating}</span>
+                        </div>
+                        <button onclick="event.stopImmediatePropagation(); addToCart(${product.id});" 
+                                class="mt-6 w-full py-4 bg-[#c2410f] hover:bg-[#9c2f0c] text-white rounded-3xl flex items-center justify-center gap-2 text-sm font-medium">
+                            <i class="fa-solid fa-bag-shopping"></i> Add to basket
+                        </button>
+                    </div>
+                </div>
+            `).join('')
+            
+            document.getElementById('results-count').textContent = `${filteredProducts.length} treasures`
+        }
+
+        function renderMakers() {
+            const makers = [
+                { name: "Priya Ceramics", location: "Kerala", emoji: "🪔", bio: "7th generation potter" },
+                { name: "Rajasthan Loom", location: "Rajasthan", emoji: "🧣", bio: "Natural dye revivalist" },
+                { name: "Himalayan Roots", location: "Himachal", emoji: "🪵", bio: "Forest wood sculptor" },
+                { name: "Kutch Sisters", location: "Gujarat", emoji: "🧵", bio: "Mirrorwork masters" }
+            ]
+            
+            const container = document.getElementById('makers-grid')
+            container.innerHTML = makers.map(m => `
+                <div class="bg-white rounded-3xl p-6 text-center hover:shadow-2xl cursor-pointer">
+                    <div class="text-6xl mb-4">${m.emoji}</div>
+                    <h4 class="font-semibold">${m.name}</h4>
+                    <p class="text-xs text-[#a37a5e]">${m.location}</p>
+                    <p class="text-sm mt-6 text-[#5c4633]">${m.bio}</p>
+                </div>
+            `).join('')
+        }
+
+        // ============== FILTERING ==============
+        function filterProducts() {
+            let filtered = [...products]
+            
+            // Search
+            const searchTerm = document.getElementById('global-search').value.toLowerCase()
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.title.toLowerCase().includes(searchTerm) || 
+                    p.seller.toLowerCase().includes(searchTerm)
+                )
+            }
+            
+            // Price range
+            const min = parseInt(document.getElementById('price-min').value) || 0
+            const max = parseInt(document.getElementById('price-max').value) || Infinity
+            filtered = filtered.filter(p => p.price >= min && p.price <= max)
+            
+            renderProducts(filtered)
+        }
+
+        function quickCategoryFilter(cat) {
+            const filtered = products.filter(p => p.category === cat)
+            renderProducts(filtered)
+            document.getElementById('shop').scrollIntoView({ behavior: 'smooth' })
+        }
+
+        function toggleLocationFilter(el) {
+            el.classList.toggle('bg-[#c2410f]')
+            el.classList.toggle('text-white')
+            filterProducts()
+        }
+
+        // ============== CART ==============
+        function addToCart(id) {
+            const product = products.find(p => p.id === id)
+            if (!product) return
+            
+            cart.push({...product})
+            updateCartCount()
+            
+            // Flying animation
+            const btn = event.currentTarget
+            const flyingClone = btn.cloneNode(true)
+            flyingClone.classList.add('fly-to-cart', 'fixed', 'z-[9999]', 'text-white')
+            document.body.appendChild(flyingClone)
+            
+            const cartIcon = document.querySelector('#cart-count')
+            const rect = cartIcon.getBoundingClientRect()
+            
+            gsap.to(flyingClone, {
+                x: rect.left - 100,
+                y: rect.top - window.scrollY - 100,
+                scale: 0.3,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power2.in",
+                onComplete: () => flyingClone.remove()
+            })
+            
+            // Toast
+            showToast(`${product.title} added to cart!`)
+        }
+
+        function addCurrentToCart() {
+            // For quick view
+            hideQuickView()
+            // In real implementation we'd pass currentProductId
+            showToast("Added to cart ✨")
+            updateCartCount()
+        }
+
+        function updateCartCount() {
+            document.getElementById('cart-count').textContent = cart.length
+        }
+
+        function showCart() {
+            const container = document.getElementById('cart-items')
+            container.innerHTML = cart.map((item, index) => `
+                <div class="flex gap-4">
+                    <img src="${item.image}" class="w-20 h-20 object-cover rounded-2xl">
+                    <div class="flex-1">
+                        <p class="font-medium">${item.title}</p>
+                        <p class="text-[#a37a5e]">${item.seller}</p>
+                        <p class="text-2xl font-bold text-[#166534]">₹${item.price}</p>
+                    </div>
+                    <button onclick="removeFromCart(${index});" class="text-red-400">×</button>
+                </div>
+            `).join('') || `<p class="text-center py-12 text-[#a37a5e]">Your basket is empty.<br>Time to fill it with beauty!</p>`
+            
+            document.getElementById('cart-total').innerHTML = `₹${cart.reduce((sum, item) => sum + item.price, 0)}`
+            document.getElementById('cart-sidebar').classList.remove('hidden')
+            document.getElementById('cart-sidebar').classList.add('flex')
+        }
+
+        function hideCart() {
+            const sidebar = document.getElementById('cart-sidebar')
+            sidebar.classList.add('hidden')
+            sidebar.classList.remove('flex')
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1)
+            updateCartCount()
+            showCart()
+        }
+
+        function proceedToCheckout() {
+            hideCart()
+            const total = cart.reduce((sum, item) => sum + item.price, 0)
+            document.getElementById('final-total').textContent = total
+            document.getElementById('checkout-modal').classList.remove('hidden')
+            document.getElementById('checkout-modal').classList.add('flex')
+        }
+
+        function hideCheckout() {
+            const modal = document.getElementById('checkout-modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+            // Clear cart for demo
+            cart = []
+            updateCartCount()
+            showToast("🎉 Thank you! Your order is confirmed (demo)")
+        }
+
+        function completeFakeCheckout() {
+            hideCheckout()
+        }
+
+        // ============== QUICK VIEW ==============
+        let currentProduct = null
+        
+        function showQuickView(id) {
+            currentProduct = products.find(p => p.id === id)
+            if (!currentProduct) return
+            
+            document.getElementById('modal-image').innerHTML = `<img src="${currentProduct.image}" class="max-h-[520px] object-contain">`
+            document.getElementById('modal-title').textContent = currentProduct.title
+            document.getElementById('modal-seller').innerHTML = `by <span class="font-semibold">${currentProduct.seller}</span> • ${currentProduct.location}`
+            document.getElementById('modal-price').innerHTML = `₹${currentProduct.price}`
+            document.getElementById('modal-price-btn').innerHTML = `₹${currentProduct.price}`
+            document.getElementById('modal-description').textContent = currentProduct.desc
+            
+            // Rating stars
+            let starsHTML = ''
+            for (let i = 1; i <= 5; i++) {
+                starsHTML += `<span class="${i <= Math.floor(currentProduct.rating) ? 'text-amber-500' : 'text-amber-200'}">★</span>`
+            }
+            document.getElementById('modal-rating').innerHTML = starsHTML
+            
+            const modal = document.getElementById('quick-view-modal')
+            modal.classList.remove('hidden')
+            modal.classList.add('flex')
+        }
+
+        function hideQuickView() {
+            const modal = document.getElementById('quick-view-modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+            currentProduct = null
+        }
+
+        // ============== AUTH MODAL ==============
+        function showAuthModal() {
+            if (currentUser.loggedIn) {
+                // Show fake profile
+                alert(`👋 Hi ${currentUser.name}!\nYou are logged in as a ${currentUser.role}.\n\n(Real Firebase profile coming in next file)`)
+                return
+            }
+            document.getElementById('auth-modal').classList.remove('hidden')
+            document.getElementById('auth-modal').classList.add('flex')
+            switchAuthTab(0)
+        }
+
+        function hideAuthModal() {
+            const modal = document.getElementById('auth-modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+
+        function switchAuthTab(tab) {
+            const content = document.getElementById('auth-content')
+            
+            if (tab === 0) { // Login
+                content.innerHTML = `
+                    <div class="space-y-6">
+                        <input id="login-email" type="email" placeholder="your@email.com" class="w-full rounded-3xl px-6 py-5 border border-[#d97706]/20">
+                        <input type="password" placeholder="••••••••" class="w-full rounded-3xl px-6 py-5 border border-[#d97706]/20">
+                        <button onclick="fakeLogin()" class="w-full py-6 bg-[#c2410f] text-white rounded-3xl text-xl font-semibold">Log in securely</button>
+                        
+                        <div class="flex items-center justify-center gap-4 text-xs">
+                            <div class="flex-1 h-px bg-[#d97706]/30"></div>
+                            OR
+                            <div class="flex-1 h-px bg-[#d97706]/30"></div>
+                        </div>
+                        
+                        <button onclick="fakeGoogleLogin()" class="w-full border border-[#d97706]/30 py-6 rounded-3xl flex items-center justify-center gap-3 text-lg">
+                            <i class="fa-brands fa-google"></i> Continue with Google
+                        </button>
+                    </div>
+                `
+            } else { // Signup
+                content.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 mb-6">
+                        <button onclick="selectRoleOnSignup('buyer')" id="buyer-btn" class="py-8 border-2 border-[#166534] rounded-3xl flex flex-col items-center hover:bg-[#166534]/5">
+                            🛍️ Buyer
+                        </button>
+                        <button onclick="selectRoleOnSignup('seller')" id="seller-btn" class="py-8 border-2 border-[#c2410f] rounded-3xl flex flex-col items-center hover:bg-[#c2410f]/5">
+                            🪔 Seller / Artisan
+                        </button>
+                    </div>
+                    <button onclick="fakeSignup()" class="w-full py-6 bg-[#166534] text-white rounded-3xl text-xl font-semibold">Create my free account</button>
+                `
+            }
+        }
+
+        let selectedRole = 'buyer'
+        
+        function selectRoleOnSignup(role) {
+            selectedRole = role
+            document.getElementById('buyer-btn').classList.toggle('ring-4', role === 'buyer')
+            document.getElementById('seller-btn').classList.toggle('ring-4', role === 'seller')
+        }
+
+        function fakeLogin() {
+            currentUser.loggedIn = true
+            currentUser.name = "Vansh"
+            currentUser.role = 'buyer'
+            hideAuthModal()
+            updateAccountUI()
+            showToast("Welcome back, Vansh! ✨")
+        }
+
+        function fakeGoogleLogin() {
+            currentUser.loggedIn = true
+            currentUser.name = "Vansh Narayan"
+            currentUser.role = 'buyer'
+            hideAuthModal()
+            updateAccountUI()
+            showToast("Signed in with Google")
+        }
+
+        function fakeSignup() {
+            currentUser.loggedIn = true
+            currentUser.name = selectedRole === 'seller' ? "Artisan Vansh" : "Vansh"
+            currentUser.role = selectedRole
+            hideAuthModal()
+            updateAccountUI()
+            
+            if (selectedRole === 'seller') {
+                setTimeout(() => showSellModal(), 800)
+            }
+        }
+
+        function updateAccountUI() {
+            document.getElementById('user-name').textContent = currentUser.name
+            document.getElementById('user-role').innerHTML = currentUser.role === 'seller' 
+                ? `<span class="text-[#c2410f]">🪔 Seller</span>` 
+                : `Browse as Buyer`
+            document.getElementById('user-avatar').innerHTML = currentUser.role === 'seller' ? '🪔' : '🛍️'
+        }
+
+        // ============== SELL MODAL ==============
+        function showSellModal() {
+            document.getElementById('sell-modal').classList.remove('hidden')
+            document.getElementById('sell-modal').classList.add('flex')
+        }
+
+        function hideSellModal() {
+            const modal = document.getElementById('sell-modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+
+        function fakeBecomeSeller() {
+            hideSellModal()
+            currentUser.role = 'seller'
+            updateAccountUI()
+            showToast("🎉 Your shop is live! Welcome to the family of makers.")
+        }
+
+        // ============== UTILS ==============
+        function showToast(message) {
+            const toast = document.createElement('div')
+            toast.style.cssText = 'position:fixed; bottom:20px; right:20px; background:#166534; color:white; padding:16px 24px; border-radius:9999px; box-shadow:0 10px 15px -3px rgb(22 101 52); z-index:99999;'
+            toast.textContent = message
+            document.body.appendChild(toast)
+            gsap.fromTo(toast, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4 })
+            setTimeout(() => {
+                gsap.to(toast, { y: 50, opacity: 0, duration: 0.4, onComplete: () => toast.remove() })
+            }, 2800)
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu')
+            menu.classList.toggle('hidden')
+        }
+
+        function toggleSearch() {
+            const input = document.getElementById('global-search')
+            input.focus()
+        }
+
+        function navigateToSection(section) {
+            document.getElementById(section).scrollIntoView({ behavior: 'smooth' })
+        }
+
+        // ============== INITIALIZE EVERYTHING ==============
+        function initializeApp() {
+            initTailwind()
+            runHeroAnimations()
+            renderCategories()
+            renderProducts(products)
+            renderMakers()
+            updateCartCount()
+            
+            // Fake logged-in state for demo (remove in production)
+            // currentUser.loggedIn = true
+            // currentUser.name = "Vansh"
+            // updateAccountUI()
+            
+            console.log('%c🚀 ArtisanHaven V1 is alive and beautiful!', 'background:#c2410f;color:white;padding:4px 8px;border-radius:4px')
+        }
+
+        // Start the magic
+        window.onload = initializeApp
+    </script>
+</body>
+</html>
